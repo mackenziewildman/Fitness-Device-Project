@@ -17,16 +17,16 @@ Read more: http://groupware.les.inf.puc-rio.br/har#wle_paper_section#ixzz4Zpw7sG
 Based on a boxplot of the classe variable, the outcome variable is not significantly skewed and the standard deviation is low (1.5) so no standardizing is applied to the classe variable. Results of Principle Component Analysis show that there is a high correlation among variables, for example, there is a clustering of the variables accel_belt_y and accel_belt_z that is explained by the variable roll_belt. Therefore, preprocessing with Principal Component Analysis is implemented into the model. 
 </p>
 
-<img src="classe_barplot.jpg" alt="Figure" style="width:406.5px;height:396px;">
+<img src="https://github.com/mackenziewildman/Fitness-Device-Project/blob/master/analysisCompiled_files/classe_barplot.jpg" alt="Figure" style="width:50px;height:50px;">
 <br>
-<img src="belt_accel_plot.jpg" alt="Figure" style="width:448px;height:454px;">
+<img src="https://github.com/mackenziewildman/Fitness-Device-Project/blob/master/analysisCompiled_files/belt_accel_plot.jpg" alt="Figure" style="width:448px;height:454px;">
 
 <h2>Cross validation</h2>
 <p>
 Training data set is split into two data sets - 80% to be used for training, 20% to be used for testing and cross validation. On the training data set, compared the accuracy of a tree-based model with multi-class linear model. The tree model was built using the "rpart" method in caret package. The linear model was built using the function multinom() in the nnet package. Considered omission of various columns in both models. After recognizing significant clustering of the data according to the user_name variable, combined both methods to classify data according to user_name, then applying a linear model to each subset of observations.
 </p>
 
-<img src="cluster_user_name.jpg" alt="Figure" style="width:451px;height:453.5px;">
+<img src="https://github.com/mackenziewildman/Fitness-Device-Project/blob/master/analysisCompiled_files/cluster_user_name.jpg" alt="Figure" style="width:451px;height:453.5px;">
 
 <h2>Final model</h2>
 <p>
