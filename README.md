@@ -23,14 +23,14 @@ Based on a boxplot of the classe variable, the outcome variable is not significa
 
 <h2>Cross validation</h2>
 <p>
-Training data set is split into two data sets - 80% to be used for training, 20% to be used for testing and cross validation. On the training data set, compared the accuracy of a tree-based model with multi-class linear model. The tree model was built using the "rpart" method in caret package. The linear model was built using the function multinom() in the nnet package. Considered omission of various columns in both models. After recognizing significant clustering of the data according to the user_name variable, combined both methods to classify data according to user_name, then applying a linear model to each subset of observations.
+Applying the simple holdout method, training data set is split into two data sets - 80% to be used for training, 20% to be used for testing. On the training data set, compared the accuracy of a tree-based model with multi-class linear model. The tree model was built using the "rpart" method in caret package. The linear model was built using the function multinom() in the nnet package. Considered omission of various columns in both models. After recognizing significant clustering of the data according to the user_name variable, combined both methods to classify data according to user_name, then applying a linear model to each subset of observations. Applying this model to the testing data set results in 87.23% accuracy. Therefore, the out-of-sample estimation error is estimated to be 87.23%.
 </p>
 
 <img src="https://github.com/mackenziewildman/Fitness-Device-Project/blob/master/analysisCompiled_files/cluster_user_name.jpg" alt="Figure" style="width:451px;height:453.5px;">
 
 <h2>Final model</h2>
 <p>
-First, a decision tree is applied according to the user_name predictor. Next, a multinomial log-linear model is applied to the corresponding user_name. All variables are used as predictors with the exception of X, td_timestamp, raw_timestamp_part_1, raw_timestamp_part_2, and new_window. This model is applied to pre-processed data, using the preProc="pca" method. The accuracy as tested on the testing data set is 87.6%.
+First, a decision tree is applied according to the user_name predictor. Next, a multinomial log-linear model is applied to the corresponding user_name. All variables are used as predictors with the exception of X, td_timestamp, raw_timestamp_part_1, raw_timestamp_part_2, and new_window. This model is applied to pre-processed data, using the preProc="pca" method. The accuracy as tested on the testing data set, pml-testing.csv, is 90%.
 </p>
 
 </body>
