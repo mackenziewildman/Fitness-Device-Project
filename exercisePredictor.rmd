@@ -1,0 +1,94 @@
+---
+title: "Exercise data predictor"
+author: "Mackenzie Wildman"
+date: "2/6/2017"
+---
+
+This script takes weightlifting excercises data and predicts the correctness of the corresponding exercise. The following packages are used:
+
+```{libraries}
+
+library(caret)
+library(nnet) #for multinom()
+```
+
+Next, data is loaded from the pml-training.csv file. Values of #DIV/0 are converted to NAs. The holdout method for cross-validation is used: Training data is partitioned into a set used for training the model and a set used for testing.
+
+```{load data}
+data = read.csv("~/pml-training.csv", na.strings=c('#DIV/0!','','NA'))
+inTrain <- createDataPartition(y=data$classe, p=0.8, list=FALSE)
+training <- data[inTrain,]
+testing <- data[-inTrain,]
+```
+
+Some variables have a significant number of NA values. These variables will be excluded from the model.
+
+```{clean}
+trainingClean <- training[,colSums(is.na(training[,]))<0.5*dim(training)[1]]
+```
+
+Based on exploratory analysis, the data is clustered according to the user_name variable and therefore the data is partitioned according to the user_name variable.
+
+Next, a multi-variable linear model is built for each user_name subest of training data. The linear model includes ALL remaining variables with PCA applied. The accuracies object summarizes the accuracy of each linear model on its corresponding subset of the training data.
+
+```{partition and model}
+#initialize list for partitioned data
+partData <- as.list(rep(NA,length(names(table(trainingClean$user_name)))))
+names(partData) <- names(table(trainingClean$user_name))
+
+#train a multi-linear model for each subset of training data
+masterModel <- as.list(rep(NA,length(names(partData))))
+names(masterModel) <- names(partData)
+#also record accuracies for each subset
+accuracies <- rep(0,length(names(partData)))
+names(accuracies) <- names(partData)
+
+for(name in names(partData)){
+  #partition data by user_name
+  partData[[name]] <- trainingClean[trainingClean$user_name==name,]
+  #create corresponding model
+  masterModel[[name]] <- multinom(as.factor(classe) ~ . -X -cvtd_timestamp -raw_timestamp_part_1 
+                               -raw_timestamp_part_2 -new_window, 
+                               method="glm", data=partData[[name]], preProc="pca")
+  #record corresponding accuracies
+  accuracies[name] <- confusionMatrix(partData[[name]]$classe,predict(masterModel[[name]],partData[[name]]))$overall[1]
+}
+```
+
+Adhering to the holdout method of cross-validation, the model is tested on the data set that was ommitted from training.
+Select variables that are included in the model: (Again, this is all variables without a significant number of missing values)
+
+```{clean}
+#take only columns that are included in trainingClean data set
+testingClean <- testing[,colnames(testing) %in% names(trainingClean)]
+```
+
+Predict classe variable based on linear model for corresponding user_name and output confusionMatrix for out-of-sample error estimation:
+
+```{predict}
+#make list of predictions
+pred <- factor(rep(1, dim(testingClean)[1]), levels=c("A","B","C","D","E"))
+for(i in 1:(dim(testingClean)[1])){
+  name <- testingClean$user_name[i]
+  pred[i] <- predict(masterModel[[name]],testingClean[i,])
+}
+#format predictions as list
+as.list(pred)
+#confusionMatrix on testing data
+confusionMatrix(testingClean$classe,pred)
+```
+
+Finally, repeat predictions on 20-row pml-testing.csv file for quiz:
+```{validation}
+validationData = read.csv("~/pml-testing.csv", na.strings=c('#DIV/0!','','NA'))
+#keep only variables that are included in model
+testingClean <- validationData[,colnames(validationData) %in% names(trainingClean)]
+#make list of predictions
+pred <- factor(rep(1, dim(testingClean)[1]), levels=c("A","B","C","D","E"))
+for(i in 1:(dim(testingClean)[1])){
+  name <- testingClean$user_name[i]
+  pred[i] <- predict(masterModel[[name]],testingClean[i,])
+}
+#format predictions as list
+as.list(pred)
+```
